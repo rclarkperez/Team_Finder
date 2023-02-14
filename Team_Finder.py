@@ -22,7 +22,7 @@ def team_finder(first, last, plyr_year):
 
 
 def csv_to_json(file_name, plyr_year):
-    """converts data in team data function to csv"""
+    """converts data in team data function from csv to json"""
     with open(file_name, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         header = next(reader)
@@ -127,7 +127,7 @@ def save_team_csv(df, filename):
 
 
 def convert_to_snake_case(string):
-    """converts string input to snake case for use in Wiki URL"""
+    """Converts string input to snake case for use in Wiki URL"""
     if not isinstance(string, str):
         return False
     words = string.strip().split()
@@ -136,12 +136,12 @@ def convert_to_snake_case(string):
     return '_'.join([word.capitalize() for word in words])
 
 def get_image(url):
-    "Gets image URL and returns text"
+    """Gets image URL and returns text"""
     r = requests.get(url)
     return r.text
 
 def print_image(team):
-    "Team city acronym and returns link to team logo."
+    """Team city acronym and returns link to team logo."""
     if team == "SEA":
         team_name = "Seattle_Seahawks"
     if team == "NE":
@@ -214,4 +214,4 @@ def print_image(team):
 
 
 if __name__ == "__main__":
-    print(team_finder("Tom", "Brady", 2012))
+    # ex: print(team_finder("Peyton", "Manning", 2022))
