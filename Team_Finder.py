@@ -22,7 +22,7 @@ def team_finder(first, last, plyr_year):
 
 
 def csv_to_json(file_name, plyr_year):
-    """converts data in weather csv to JSON with months as keys"""
+    """converts data in team data function to csv"""
     with open(file_name, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         header = next(reader)
@@ -136,10 +136,12 @@ def convert_to_snake_case(string):
     return '_'.join([word.capitalize() for word in words])
 
 def get_image(url):
+    "Gets image URL and returns text"
     r = requests.get(url)
     return r.text
 
 def print_image(team):
+    "Team city acronym and returns link to team logo."
     if team == "SEA":
         team_name = "Seattle_Seahawks"
     if team == "NE":
