@@ -6,14 +6,14 @@ Microservice named 'Team Finder' was constructed for CS361 at Oregon State Unive
 To Request Data: The ZeroMQ communication pipeline is used from the team_input.py file to send data in a message variable assigned to 'socket.send'. What is sent are two subsequent user inputs, each assigned to region_input and team_name_input variables respectively. 
 
 
-context = zmq.Context()
+_context = zmq.Context()
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 for request in range(2):
     if request == 0:
         region_input = input("Please enter team city/region: ")
         print(f"Sending request {region_input} …")
-        socket.send_string(region_input)
+        socket.send_string(region_input)_
 
         message = socket.recv()
         print(f"Received reply {region_input} [ {message} ]")
