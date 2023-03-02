@@ -1,7 +1,3 @@
-import csv
-import json
-import requests
-
 import time
 import zmq
 
@@ -10,21 +6,24 @@ socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
 
 
-def convert_to_snake_case(string):
+def string_check(string):
     """Converts string input to snake case for use for print image function"""
     if not isinstance(string, str):
         print('not a string')
         return False
-    words = string.strip().split()
-    if not all(word.isalpha() for word in words):
-        print('other')
+    if not string[0].isupper():
+        return f"invalid input. Please capitalize parameter {string}"
+    word_arr = string.strip().split()
+    for word in word_arr:
+        if not word.isalpha():
+            return False
+    joint_words = '_'.join(word_arr)
+    return joint_words
 
-        return False
-    return '_'.join([word.capitalize() for word in words])
 
 
 def print_image(team):
-    """Full tram name used to find exact link to wikipedia logo for a given team"""
+    """Full team name used to find exact link to wikipedia logo for a given team"""
     if team == "Seattle_Seahawks":
         url = "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Seahawks_logo.svg"
         return url
@@ -157,8 +156,9 @@ def print_image(team):
 
 def logo_finder(region, team_name):
     """Takes region name and team name and returns link to logo of team"""
-    team_name = convert_to_snake_case(team_name)
-    region = convert_to_snake_case(region)
+
+    team_name = string_check(team_name)
+    region = string_check(region)
     print(team_name, region, 'team', 'region')
     # returns false if not entered
     if team_name is False or region is False:
@@ -178,7 +178,7 @@ while True:
     message = socket.recv()
     if count == 0:
         region_input = str(message)[1:].replace("'", "")
-        '_'.join([word.capitalize() for word in region_input])
+
         print(region_input)
         #  Do some 'work'
         time.sleep(1)
@@ -191,7 +191,6 @@ while True:
 
     else:
         team_name_input = str(message)[1:].replace("'", "")
-        '_'.join([word.capitalize() for word in team_name_input])
         print(team_name_input)
         #  Do some 'work'
         time.sleep(1)
@@ -200,3 +199,7 @@ while True:
         #  Send reply back to client
         socket.send_string(f'{result}')
         print(f"Received request: {message}")
+        count -=1
+
+
+
