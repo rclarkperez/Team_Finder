@@ -23,7 +23,7 @@ for request in range(2):
         socket.send_string(team_name_input)
   ```
 
-To Receive Data: The ZeroMQ communication pipeline is used from the Team_finder.py file, which is where microservice itself is located. The microservice receives the input variables from team_input.py through socket.recv(). This is then assigned to message. There will be two messages sent, one that is assigned to variable: 'team_name', the other assigned to variable 'region'. These two variables are then given to the main microservice function 'logo_finder' as parameters. What is returned is the team logo URL on wikipedia or an 'invalid input' error message set to variable 'result'. This is then sent as the result through socket.send_string(f'{result}'). 
+To Receive Data: The ZeroMQ communication pipeline is used from the Team_finder.py file, which is where microservice itself is located. The microservice receives the input variables from team_input.py through socket.recv(). This is then assigned to message. There will be two messages sent, one that is assigned to variable: 'team_name', the other assigned to variable 'region'. These two variables are then given to the main microservice function 'logo_finder' as parameters. What is returned is the team logo URL on wikipedia or an 'invalid input' error message set to variable 'result'. This is then sent as the result through socket.send_string(f'{result}') and as sent back to the original 'input_team.py' file
 
 ```python
 context = zmq.Context()
