@@ -5,7 +5,7 @@ Microservice named 'Team Finder' was constructed for CS361 at Oregon State Unive
 
 To Request Data: The ZeroMQ communication pipeline is used from the team_input.py file to send data in a message variable assigned to 'socket.send'. What is sent are two subsequent user inputs, each assigned to region_input and team_name_input variables respectively. 
 
-
+```python
 __context = zmq.Context()
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")_
@@ -21,10 +21,11 @@ for request in range(2):
         team_name_input = input("Please enter team name: ")
         print(f"Sending request {team_name_input} …")
         socket.send_string(team_name_input)
+  ```
 
 To Receive Data: The ZeroMQ communication pipeline is used from the Team_finder.py file, which is where microservice itself is located. The microservice receives the input variables from team_input.py through socket.recv(). This is then assigned to message. There will be two messages sent, one that is assigned to variable: 'team_name', the other assigned to variable 'region'. These two variables are then given to the main microservice function 'logo_finder' as parameters. What is returned is the team logo URL on wikipedia or an 'invalid input' error message set to variable 'result'. This is then sent as the result through socket.send_string(f'{result}'). 
 
-
+```python
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
