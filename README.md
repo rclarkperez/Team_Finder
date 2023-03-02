@@ -28,7 +28,6 @@ To Receive Data: The ZeroMQ communication pipeline is used from the Team_finder.
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
-
 count = 0
 while True:
 
