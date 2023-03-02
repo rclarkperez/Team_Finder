@@ -9,6 +9,7 @@ To Request Data: The ZeroMQ communication pipeline is used from the team_input.p
 _context = zmq.Context()
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
+
 for request in range(2):
     if request == 0:
         region_input = input("Please enter team city/region: ")
@@ -16,6 +17,7 @@ for request in range(2):
         socket.send_string(region_input)_
         message = socket.recv()
         print(f"Received reply {region_input} [ {message} ]")
+        
     if request == 1:
         team_name_input = input("Please enter team name: ")
         print(f"Sending request {team_name_input} …")
@@ -27,9 +29,11 @@ To Receive Data: The ZeroMQ communication pipeline is used from the Team_finder.
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
+
 count = 0
 while True:
     message = socket.recv()
+    
     if count == 0:
         region_input = str(message)[1:].replace("'", "")
         '_'.join([word.capitalize() for word in region_input])
