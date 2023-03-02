@@ -55,8 +55,8 @@ while True:
         result = logo_finder(region_input, team_name_input)
         socket.send_string(f'{result}')
         print(f"Received request: {message}")
-        ```
-        <img width="875" alt="Screen Shot 2023-03-01 at 10 17 01 PM" src="https://user-images.githubusercontent.com/65691245/222346724-fce740d4-facc-4ed2-a81d-5679b8c3e413.png">
+ ```
+<img width="875" alt="Screen Shot 2023-03-01 at 10 17 01 PM" src="https://user-images.githubusercontent.com/65691245/222346724-fce740d4-facc-4ed2-a81d-5679b8c3e413.png">
 
         
 
