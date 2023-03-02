@@ -1,217 +1,202 @@
-import pandas as pd
 import csv
 import json
-import ssl
 import requests
-ssl._create_default_https_context = ssl._create_unverified_context
 
-def team_finder(first, last, plyr_year):
-    """web-scrapes wikipedia for climate info on a given city. Data is returned in JSON format"""
-    first = convert_to_snake_case(first)
-    last = convert_to_snake_case(last)
-    if first is False or last is False or plyr_year >2023 or plyr_year <2002:
-        return "invalid input"
-    url = f"https://en.wikipedia.org/wiki/{first}_{last}#Regular_season"
-    try:
-        html = pd.read_html(url, header=0)
-    except Exception as e:
-        return f"Error: {e}"
-    df = html[6]
-    save_team_csv(df, "team_report")
-    return csv_to_json("team_report.csv", plyr_year)
+import time
+import zmq
 
-
-def csv_to_json(file_name, plyr_year):
-    """converts data in team data function from csv to json"""
-    with open(file_name, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        header = next(reader)
-        columns = header[1:-1]
-
-        data = {}
-        for row in reader:
-            category = row[0]
-            values = row[1:-1]
-            for i, value in enumerate(values):
-                if columns[i] not in data:
-                    data[columns[i]] = {}
-                data[columns[i]][category] = value
-
-        #print(data)
-        try:
-            data = data['Team'][f"{plyr_year}"]
-
-            # Prints link to team logo of player
-            print(print_image(data))
-
-            if data == "SEA":
-                team_name = "Seattle_Seahawks"
-            if data == "NE":
-                team_name = "New_England_Patriots"
-            if data == "TB":
-                team_name = "Tampa_Bay_Buccaneers"
-            if data == "IND":
-                team_name = "Indianapolis_Colts"
-            if data == "DEN":
-                team_name = "Denver_Broncos"
-            if data == "CHI":
-                team_name = "Chicago_Bears"
-            if data == "NO":
-                team_name = "New_Orleans_Saints"
-            if data == "CAR":
-                team_name = "Carolina_Panthers"
-            if data == "LV":
-                team_name = "Las_Vegas_Raiders"
-            if data == "BUF":
-                team_name = "Buffalo_Bills"
-            if data == "DAL":
-                team_name = "Dallas_Cowboys"
-            if data == "MIA":
-                team_name = "Miami_Dolphins"
-            if data == "GB":
-                team_name = "Green_Bay_Packers"
-            if data == "ARI":
-                team_name = "Arizona_Cardinals"
-            if data == "WAS":
-                team_name = "Washington_Commanders"
-            if data == "CLE":
-                team_name = "Cleveland_Browns"
-            if data == "SF":
-                team_name = "San_Francisco_49ers"
-            if data == "BAL":
-                team_name = "Baltimore_Ravens"
-            if data == "ATL":
-                team_name = "Atlanta_Falcons"
-            if data == "TEN":
-                team_name = "Tennessee_Titans"
-            if data == "PHI":
-                team_name = "Philadelphia_Eagles"
-            if data == "CIN":
-                team_name = "Cincinnati_Bengals"
-            if data == "DET":
-                team_name = "Detroit_Lions"
-            if data == "LAR":
-                team_name = "Los_Angeles_Rams"
-            if data == "HOU":
-                team_name = "Houston_Texans"
-            if data == "JAX":
-                team_name = "Jacksonville_Jaguars"
-            if data == "KC":
-                team_name = "Kansas_City_Chiefs"
-            if data == "MIN":
-                team_name = "Minnesota_Vikings"
-            if data == "LAC":
-                team_name = "Los_Angeles_Chargers"
-            if data == "NYG":
-                team_name = "New_York_Giants"
-            if data == "NYJ":
-                team_name = "New_York_Jets"
-            if data == "JAX":
-                team_name = "Jacksonville_Jaguars"
-            if data == "PIT":
-                team_name = "Pittsburgh_Steelers"
-            return f"That player is from the {team_name}"
-        except Exception as e:
-            return "Invalid Year"
-
-
-def save_team_csv(df, filename):
-    """saves the team dataframe as a csv and removes unnecessary data"""
-    df.to_csv(f"{filename}.csv")
-    with open(f"{filename}.csv", 'r') as csvfile:
-        csv_reader = csv.reader(csvfile)
-        rows = [row[1:] for row in csv_reader]
-    with open(f"{filename}.csv", 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-        csv_writer.writerows(rows[1:-1])
+context = zmq.Context()
+socket = context.socket(zmq.REP)
+socket.bind("tcp://*:5555")
 
 
 def convert_to_snake_case(string):
-    """Converts string input to snake case for use in Wiki URL"""
+    """Converts string input to snake case for use for print image function"""
     if not isinstance(string, str):
+        print('not a string')
         return False
     words = string.strip().split()
     if not all(word.isalpha() for word in words):
+        print('other')
+
         return False
     return '_'.join([word.capitalize() for word in words])
 
-def get_image(url):
-    """Gets image URL and returns text"""
-    r = requests.get(url)
-    return r.text
 
 def print_image(team):
-    """Team city acronym and returns link to team logo."""
-    if team == "SEA":
-        team_name = "Seattle_Seahawks"
-    if team == "NE":
-        team_name = "New_England_Patriots"
-    if team == "TB":
-        team_name = "Tampa_Bay_Buccaneers"
-    if team == "IND":
-        team_name = "Indianapolis_Colts"
-    if team == "DEN":
-        team_name = "Denver_Broncos"
-    if team == "CHI":
-        team_name = "Chicago_Bears"
-    if team == "NO":
-        team_name = "New_Orleans_Saints"
-    if team == "CAR":
-        team_name = "Carolina_Panthers"
-    if team == "LV":
-        team_name = "Las_Vegas_Raiders"
-    if team == "BUF":
-        team_name = "Buffalo_Bills"
-    if team == "DAL":
-        team_name = "Dallas_Cowboys"
-    if team == "MIA":
-        team_name = "Miami_Dolphins"
-    if team == "GB":
-        team_name = "Green_Bay_Packers"
-    if team == "ARI":
-        team_name = "Arizona_Cardinals"
-    if team == "WAS":
-        team_name = "Washington_Commanders"
-    if team == "CLE":
-        team_name = "Cleveland_Browns"
-    if team == "SF":
-        team_name = "San_Francisco_49ers"
-    if team == "BAL":
-        team_name = "Baltimore_Ravens"
-    if team == "ATL":
-        team_name = "Atlanta_Falcons"
-    if team == "TEN":
-        team_name = "Tennessee_Titans"
-    if team == "PHI":
-        team_name = "Philadelphia_Eagles"
-    if team == "CIN":
-        team_name = "Cincinnati_Bengals"
-    if team == "DET":
-        team_name = "Detroit_Lions"
-    if team == "LAR":
-        team_name = "Los_Angeles_Rams"
-    if team == "HOU":
-        team_name = "Houston_Texans"
-    if team == "JAX":
-        team_name = "Jacksonville_Jaguars"
-    if team == "KC":
-        team_name = "Kansas_City_Chiefs"
-    if team == "MIN":
-        team_name = "Minnesota_Vikings"
-    if team == "LAC":
-        team_name = "Los_Angeles_Chargers"
-    if team == "NYG":
-        team_name = "New_York_Giants"
-    if team == "NYJ":
-        team_name = "New_York_Jets"
-    if team == "JAX":
-        team_name = "Jacksonville_Jaguars"
-    if team == "PIT":
-        team_name = "Pittsburgh_Steelers"
+    """Full tram name used to find exact link to wikipedia logo for a given team"""
+    if team == "Seattle_Seahawks":
+        url = "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Seahawks_logo.svg"
+        return url
+    if team == "New_England_Patriots":
+        url ="https://upload.wikimedia.org/wikipedia/en/b/b9/New_England_Patriots_logo.svg"
+        return url
 
-    url = f"https://en.wikipedia.org/wiki/{team_name}#/media/File:{team_name}_logo.svg"
-    return url
+    if team == "Tampa_Bay_Buccaneers":
+        url = "https://upload.wikimedia.org/wikipedia/en/a/a2/Tampa_Bay_Buccaneers_logo.svg"
+        return url
+
+    if team == "Indianapolis_Colts":
+        url = "https://upload.wikimedia.org/wikipedia/commons/0/00/Indianapolis_Colts_logo.svg"
+        return url
+
+    if team == "Denver_Broncos":
+        url = "https://upload.wikimedia.org/wikipedia/en/4/44/Denver_Broncos_logo.svg"
+        return url
+
+    if team == "Chicago_Bears":
+        url = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Chicago_Bears_logo.svg"
+        return url
+
+    if team == "New_Orleans_Saints":
+        url = "https://upload.wikimedia.org/wikipedia/commons/5/50/New_Orleans_Saints_logo.svg"
+        return url
+
+    if team == "Carolina_Panthers":
+        url = "https://upload.wikimedia.org/wikipedia/en/1/1c/Carolina_Panthers_logo.svg"
+        return url
+
+    if team == "Las_Vegas_Raiders":
+        url = "https://upload.wikimedia.org/wikipedia/en/4/48/Las_Vegas_Raiders_logo.svg"
+        return url
+
+    if team == "Buffalo_Bills":
+        url = "https://upload.wikimedia.org/wikipedia/en/7/77/Buffalo_Bills_logo.svg"
+        return url
+
+    if team == "Dallas_Cowboys":
+        url = "https://upload.wikimedia.org/wikipedia/commons/1/15/Dallas_Cowboys.svg"
+        return url
+
+    if team == "Miami_Dolphins":
+        url = "https://upload.wikimedia.org/wikipedia/en/3/37/Miami_Dolphins_logo.svg"
+        return url
+
+    if team == "Green_Bay_Packers":
+        url = "https://upload.wikimedia.org/wikipedia/commons/5/50/Green_Bay_Packers_logo.svg"
+        return url
+
+    if team == "Arizona_Cardinals":
+        url = "https://upload.wikimedia.org/wikipedia/en/7/72/Arizona_Cardinals_logo.svg"
+        return url
+
+    if team == "Washington_Commanders":
+        "https://upload.wikimedia.org/wikipedia/commons/0/0c/Washington_Commanders_logo.svg"
+        return url
+
+    if team == "Cleveland_Browns":
+        "https://upload.wikimedia.org/wikipedia/en/d/d9/Cleveland_Browns_logo.svg"
+        return url
+
+    if team == "San_Francisco_49ers":
+        "https://upload.wikimedia.org/wikipedia/commons/3/3a/San_Francisco_49ers_logo.svg"
+        return url
+
+    if team == "Baltimore_Ravens":
+        "https://upload.wikimedia.org/wikipedia/en/1/16/Baltimore_Ravens_logo.svg"
+        return url
+
+    if team == "Atlanta_Falcons":
+        "https://upload.wikimedia.org/wikipedia/en/c/c5/Atlanta_Falcons_logo.svg"
+        return url
+
+    if team == "Tennessee_Titans":
+        "https://upload.wikimedia.org/wikipedia/en/c/c1/Tennessee_Titans_logo.svg"
+        return url
+
+    if team == "Philadelphia_Eagles":
+        "https://upload.wikimedia.org/wikipedia/en/8/8e/Philadelphia_Eagles_logo.svg"
+        return url
+
+    if team == "Cincinnati_Bengals":
+        "https://upload.wikimedia.org/wikipedia/commons/8/81/Cincinnati_Bengals_logo.svg"
+        return url
+
+    if team == "Detroit_Lions":
+        url = "https://upload.wikimedia.org/wikipedia/en/7/71/Detroit_Lions_logo.svg"
+        return url
+
+    if team == "Los_Angeles_Rams":
+        url = "https://upload.wikimedia.org/wikipedia/en/8/8a/Los_Angeles_Rams_logo.svg"
+        return url
+
+    if team == "Houston_Texans":
+        url = "https://upload.wikimedia.org/wikipedia/en/2/28/Houston_Texans_logo.svg"
+        return url
+
+    if team == "Jacksonville_Jaguars":
+        url = "https://upload.wikimedia.org/wikipedia/en/7/74/Jacksonville_Jaguars_logo.svg"
+        return url
+
+    if team == "Kansas_City_Chiefs":
+        url = "https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg"
+        return url
+
+    if team == "Minnesota_Vikings":
+        url = "https://upload.wikimedia.org/wikipedia/en/4/48/Minnesota_Vikings_logo.svg"
+        return url
+
+    if team == "Los_Angeles_Chargers":
+        url = "https://upload.wikimedia.org/wikipedia/en/a/a6/Los_Angeles_Chargers_logo.svg"
+        return url
+
+    if team == "New_York_Giants":
+        url = "https://upload.wikimedia.org/wikipedia/commons/6/60/New_York_Giants_logo.svg"
+        return url
+
+    if team == "New_York_Jets":
+        url = "https://upload.wikimedia.org/wikipedia/en/6/6b/New_York_Jets_logo.svg"
+        return url
+
+    if team == "Pittsburgh_Steelers":
+        url = "https://upload.wikimedia.org/wikipedia/commons/d/de/Pittsburgh_Steelers_logo.svg"
+        return url
+    else:
+        return False
 
 
-if __name__ == "__main__":
-    # ex: print(team_finder("Peyton", "Manning", 2022))
+def logo_finder(region, team_name):
+    """Takes region name and team name and returns link to logo of team"""
+    team_name = convert_to_snake_case(team_name)
+    region = convert_to_snake_case(region)
+    print(team_name, region, 'team', 'region')
+    # returns false if not entered
+    if team_name is False or region is False:
+        return "invalid input"
+    full_name = f"{region}_{team_name}"
+    print(full_name, "full name")
+    return print_image(full_name)
+
+context = zmq.Context()
+socket = context.socket(zmq.REP)
+socket.bind("tcp://*:5555")
+
+count = 0
+while True:
+    #  Wait for next request from client
+
+    message = socket.recv()
+    if count == 0:
+        region_input = str(message)[1:].replace("'", "")
+        '_'.join([word.capitalize() for word in region_input])
+        print(region_input)
+        #  Do some 'work'
+        time.sleep(1)
+
+        #  Send reply back to client
+        socket.send(b"Please send team data")
+        print(f"Received request: {message}")
+
+        count += 1
+
+    else:
+        team_name_input = str(message)[1:].replace("'", "")
+        '_'.join([word.capitalize() for word in team_name_input])
+        print(team_name_input)
+        #  Do some 'work'
+        time.sleep(1)
+
+        result = logo_finder(region_input, team_name_input)
+        #  Send reply back to client
+        socket.send_string(f'{result}')
+        print(f"Received request: {message}")
