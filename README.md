@@ -33,7 +33,6 @@ socket.bind("tcp://*:5555")
 count = 0
 while True:
     message = socket.recv()
-    
     if count == 0:
         region_input = str(message)[1:].replace("'", "")
         '_'.join([word.capitalize() for word in region_input])
