@@ -14,7 +14,6 @@ for request in range(2):
         region_input = input("Please enter team city/region: ")
         print(f"Sending request {region_input} …")
         socket.send_string(region_input)_
-
         message = socket.recv()
         print(f"Received reply {region_input} [ {message} ]")
     if request == 1:
@@ -30,7 +29,6 @@ socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
 count = 0
 while True:
-
     message = socket.recv()
     if count == 0:
         region_input = str(message)[1:].replace("'", "")
